@@ -1,0 +1,5 @@
+log/*.log
+log/**/*.log
+run/*.db
+*~
+a.html

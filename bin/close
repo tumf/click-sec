@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+=begin
+サンプルコード - ポジションのクローズ
+
+./bin/close 9984
+> 指定したコードのポジションを閉じます
+
+=end
+
+$:.unshift(File.join(File.dirname(__FILE__),'..','lib'))
+require 'stocktrade'; include StockTrade
+require 'stocktrade/clicksec/position'
+
+Signal.trap(:INT){ exit(0) }
+
+OptionParser.new { |opt|
+  opt.on('-d','--debug') { |v| $DEBUG = true  }
+}.order!(ARGV)
+
+codes = ARGV
+
+begin
+  ClickSec::Position.new { |pos|
+    codes.each { |code|
+      stock = Yahoo::Stock.new(code)
+      puts "Closing #{code} #{stock.name}"
+      pos.close(code)
+    }
+    pos.logout
+  }
+rescue StockTrade::Alert => e
+  puts e
+  exit 255
+end
+exit 0

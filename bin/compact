@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+$:.unshift(File.join(File.dirname(__FILE__),'..','lib'))
+require 'stocktrade'; include StockTrade
+require 'stocktrade/market'
+Signal.trap(:INT){ exit(0) }
+
+StockTrade::Market.new { |market|
+  market.logfiles.each { |path|
+    puts "compact ===> #{path}"
+    market.compact!(path)
+  }
+}

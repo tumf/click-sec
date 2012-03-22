@@ -1,0 +1,47 @@
+#!/usr/bin/env ruby
+# -*- coding: utf-8 -*-
+=begin
+サンプルコード - 新規信用買建
+
+./bin/buy 9984 100 2500
+>ソフトバンク(9984) 100株 2500円買
+
+./bin/buy 9984 100
+>　価格を省略すると成行注文
+
+./bin/buy 9984
+>　株数省略すると最小単位成行注文
+
+になります
+
+=end
+$:.unshift(File.join(File.dirname(__FILE__),'..','lib'))
+require 'stocktrade'; include StockTrade
+require 'stocktrade/clicksec/position'
+
+Signal.trap(:INT){ exit(0) }
+
+OptionParser.new { |opt|
+  opt.on('-d','--debug') { |v| $DEBUG = true  }
+}.order!(ARGV)
+
+def usage
+  puts "Usage: #{$0} CODE NUM PRICE"
+  exit 0
+end
+
+usage unless  ARGV.count > 0
+code,num,price = ARGV
+begin
+  ClickSec::Position.new { |pos|
+    stock = Yahoo::Stock.new(code)
+    num = stock.unit unless num
+    puts "BUY #{code} #{stock.name} #{num}@#{price}"
+    pos.buy(code,num,price)
+    pos.logout
+  }
+rescue StockTrade::Alert => e
+  puts e
+  exit 255
+end
+exit 0
